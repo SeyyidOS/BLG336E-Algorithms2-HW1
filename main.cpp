@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <cmath>
+#include <stack>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ private:
     vector< vector<int> > adj_m; // Adjacency matrix
     int dfs_src; // Source node for the DFS case
     bool dfs_has_cycle; // DFS cycle flag
-    queue<int> dfs_cycle_path; // DFS cycle path
+    stack<int> dfs_cycle_path; // DFS cycle path
 public:
     Graph(int num_vertices); // Constructor
     void addVertices(int src, int dst); // Add function for graph
@@ -104,16 +105,18 @@ void Graph::bfs(int src, int tg){
     }
 
     // Construct path
+    int counter = -1;
     vector<int> path;
     for (int v = tg; v != -1; v = parent[v]) {
+        counter += 1;
         path.push_back(v);
     }
-    reverse(path.begin(), path.end());
-
+    
+    file << counter << " ";
     // Write the path to file
-    for (int i = 0; i < path.size(); i++) {
+    for (int i = path.size()-1; i >= 0; i--) {
         file << path[i];
-        if (i != path.size() - 1) {
+        if (i != 0) {
             file << "->";
         }
     }
@@ -124,6 +127,7 @@ void Graph::dfsUtil(int w, int current_depth, vector<bool>& in_progress, vector<
     in_progress[w] = true; // In progress flag
     current_depth += 1; // Depth
     this->dfs_cycle_path.push(w); // Push path to que
+
     // If reached the src after at least 2 depth end recursion
     if (this->adj_m[w][this->dfs_src] && current_depth>2){
         this->dfs_cycle_path.push(this->dfs_src); // Push path
@@ -146,7 +150,7 @@ void Graph::dfsUtil(int w, int current_depth, vector<bool>& in_progress, vector<
 
     current_depth -= 1; // Decrement after every recursion step
     all_done[w] = true;  // Set all done 
-    in_progress[w] = false; // Set in progress
+    // in_progress[w] = false; // Set in progress
 }
 
 void Graph::dfs(int src) {
@@ -166,11 +170,20 @@ void Graph::dfs(int src) {
         file << "-1" << endl;
     }
     else{
-        int len = this->dfs_cycle_path.size();
-        for (int i = 0; i < len; i++){
-            file<< this->dfs_cycle_path.front();
-            this->dfs_cycle_path.pop();
 
+        stack<int> temp;
+        while (!this->dfs_cycle_path.empty()) {
+            temp.push(this->dfs_cycle_path.top());
+            this->dfs_cycle_path.pop();
+        }
+        
+
+        int len = temp.size();
+        file << len-1 << " ";
+        for (int i = 0; i < len; i++){
+            file<< temp.top();
+            temp.pop();
+            
             if (i == len-1)
                 file << endl;  
             else
