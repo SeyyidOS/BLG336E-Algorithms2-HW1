@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <queue>
 #include <cmath>
 #include <stack>
@@ -126,7 +127,7 @@ void Graph::bfs(int src, int tg){
 void Graph::dfsUtil(int w, int current_depth, vector<bool>& in_progress, vector<bool>& all_done) {
     in_progress[w] = true; // In progress flag
     current_depth += 1; // Depth
-    this->dfs_cycle_path.push(w); // Push path to que
+    this->dfs_cycle_path.push(w); // Push path to stack
 
     // If reached the src after at least 2 depth end recursion
     if (this->adj_m[w][this->dfs_src] && current_depth>2){
@@ -142,7 +143,7 @@ void Graph::dfsUtil(int w, int current_depth, vector<bool>& in_progress, vector<
       }
     }
 
-    // If there is not cycle pop the queue elements
+    // If there is not cycle pop the stack elements
     if (!this->dfs_has_cycle)
     {
       this->dfs_cycle_path.pop();
@@ -170,13 +171,11 @@ void Graph::dfs(int src) {
         file << "-1" << endl;
     }
     else{
-
         stack<int> temp;
         while (!this->dfs_cycle_path.empty()) {
             temp.push(this->dfs_cycle_path.top());
             this->dfs_cycle_path.pop();
         }
-        
 
         int len = temp.size();
         file << len-1 << " ";
@@ -202,6 +201,7 @@ int main(int argc, char* argv[]){
         Please, try to write clean and readable code. Remember to comment!!
     */
 
+    auto start = chrono::high_resolution_clock::now(); 
     // Read the input file
     string fn = argv[1];
     ifstream file(fn);
@@ -244,5 +244,7 @@ int main(int argc, char* argv[]){
     // Close the file
     file.close(); 
 
-    exit(0);
+    auto end = chrono::high_resolution_clock::now(); // end timing
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start); // calculate duration in microseconds
+    cout << "Child Number: " << num_kids <<"    Runtime: " << duration.count() << " microseconds" << endl;
 }
